@@ -1,53 +1,53 @@
 package main
 
-import (
-	"math"
-	"sync"
-)
-
 // MergeSort performs the merge sort algorithm.
 // Please supplement this function to accomplish the home work.
 func MergeSort(src []int64) {
-	l := len(src)
+	tmp := make([]int64, len(src))
+	copy(tmp, src)
+	merge(tmp, src, 0, len(src))
+}
+
+func merge(src []int64, dst []int64, startIdx int, endIdx int) {
+	l := endIdx - startIdx
 	if l > 2 {
-		wg := sync.WaitGroup{}
-		wg.Add(2)
+		half := startIdx + l/2
+		//var wg sync.WaitGroup
+		//wg.Add(2)
 
-		go func(src2 []int64) {
-			MergeSort(src2)
-			wg.Done()
-		}(src[:l/2])
+		//go func(src1 []int64, dst1 []int64, startIdx1 int, endIdx1 int) {
+		//	defer wg.Done()
+		//	merge(src1, dst1, startIdx1, endIdx1)
+		//}(dst, src, startIdx, half)
+		//
+		//go func(src2 []int64, dst2 []int64, startIdx2 int, endIdx2 int) {
+		//	defer wg.Done()
+		//	merge(src2, dst2, startIdx2, endIdx2)
+		//}(dst, src, half, endIdx)
 
-		go func(src2 []int64) {
-			MergeSort(src2)
-			wg.Done()
-		}(src[l/2:])
+		//wg.Wait()
+		merge(dst, src, startIdx, half)
+		merge(dst, src, half, endIdx)
 
-		wg.Wait()
-	}
-
-	if l > 2 {
-		left := make([]int64, l/2 + 1)
-		copy(left, src[:l/2])
-		left[len(left)-1] = math.MaxInt64
-
-		right := make([]int64, l - l/2 + 1)
-		copy(right, src[l/2:])
-		right[len(right)-1] = math.MaxInt64
-
-		idxLeft, idxRight := 0, 0
-		for i := range src {
-			if left[idxLeft] < right[idxRight] {
-				src[i] = left[idxLeft]
+		idxLeft, idxRight := startIdx, half
+		for i := startIdx; i<endIdx; i++ {
+			if idxRight == endIdx {
+				dst[i] = src[idxLeft]
+				idxLeft++
+			}else if idxLeft == half {
+				dst[i] = src[idxRight]
+				idxRight++
+			}else if src[idxLeft] < src[idxRight]{
+				dst[i] = src[idxLeft]
 				idxLeft++
 			}else {
-				src[i] = right[idxRight]
+				dst[i] = src[idxRight]
 				idxRight++
 			}
 		}
-	} else if l == 2 {
-		if src[0] > src[1] {
-			src[0], src[1] = src[1], src[0]
+	}else if l == 2 {
+		if src[startIdx] > src[startIdx+1] {
+			dst[startIdx], dst[startIdx+1] = src[startIdx+1], src[startIdx]
 		}
 	}
 }
